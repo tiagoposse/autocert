@@ -36,6 +36,7 @@ const (
 	admissionWebhookAnnotationKey = "autocert.step.sm/name"
 	admissionWebhookStatusKey     = "autocert.step.sm/status"
 	durationWebhookStatusKey      = "autocert.step.sm/duration"
+	pathAnnotationKey             = "autocert.step.sm/mount-path"
 	volumeMountPath               = "/var/run/autocert.step.sm"
 	tokenSecretKey                = "token"
 	tokenSecretLabel              = "autocert.step.sm/token"
@@ -455,6 +456,10 @@ func patch(pod *corev1.Pod, namespace string, config *Config, provisioner *ca.Pr
 	annotations := pod.ObjectMeta.GetAnnotations()
 	commonName := annotations[admissionWebhookAnnotationKey]
 	duration := annotations[durationWebhookStatusKey]
+	if val, ok := annotations[pathAnnotationKey]; ok {
+		volumeMountPath = val
+	}
+
 	renewer := mkRenewer(config, name, commonName, namespace)
 	bootstrapper, err := mkBootstrapper(config, name, commonName, duration, namespace, provisioner)
 	if err != nil {
